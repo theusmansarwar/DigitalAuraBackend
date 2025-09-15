@@ -273,22 +273,44 @@ const deletemultiblog = async (req, res) => {
 
 const listblog = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; // Get page from query, default to 1
-    const limit = parseInt(req.query.limit) || 10; // Get limit from query, default to 10
+    const page = parseInt(req.query.page) || 1; 
+    const limit = parseInt(req.query.limit) || 10; 
+    const { categoryId } = req.params; 
+    const { search } = req.query; 
 
-    const blogslist = await Blogs.find({ published: true })
+    // base filter
+    let filter = { published: true };
+
+    // ✅ Category filter (check embedded category._id)
+    if (categoryId && categoryId !== "all" && categoryId.trim() !== "") {
+      filter["category._id"] = categoryId;
+    }
+
+    // ✅ Search filter (applied only if non-empty)
+    if (search && search.trim() !== "") {
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+        { "category.name": { $regex: search, $options: "i" } }, // allows searching by category name
+        { author: { $regex: search, $options: "i" } }
+      ];
+    }
+
+    // fetch blogs
+    const blogslist = await Blogs.find(filter)
       .select("-comments -detail -published -viewedBy")
       .sort({ createdAt: -1 })
       .limit(limit)
       .skip((page - 1) * limit);
 
-    const totalBlogs = await Blogs.countDocuments({ published: true });
+    // total count
+    const totalBlogs = await Blogs.countDocuments(filter);
 
     res.status(200).json({
       totalBlogs,
       totalPages: Math.ceil(totalBlogs / limit),
       currentPage: page,
-      limit: limit,
+      limit,
       blogs: blogslist,
     });
   } catch (error) {
@@ -300,6 +322,7 @@ const listblog = async (req, res) => {
     });
   }
 };
+
 const getFeaturedblogs = async (req, res) => {
   try {
     const allFeaturedBlogs = await Blogs.find({
