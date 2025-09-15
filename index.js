@@ -12,6 +12,10 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5176",
   "http://localhost:3001",
+  "https://aurafrontend.ztesting.site",
+  "https://digitalaura.sa",
+  "https://auraadmin.ztesting.site",
+  "https://admin.digitalaura.sa"
 ];
 
 const corsOptions = {
