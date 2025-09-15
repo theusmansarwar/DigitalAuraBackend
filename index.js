@@ -15,7 +15,8 @@ const allowedOrigins = [
   "https://aurafrontend.ztesting.site",
   "https://digitalaura.sa",
   "https://auraadmin.ztesting.site",
-  "https://admin.digitalaura.sa"
+  "https://admin.digitalaura.se"
+ 
 ];
 
 const corsOptions = {
