@@ -41,7 +41,7 @@ const upload = multer({ storage: storage, fileFilter: fileFilter }).fields([
 
 // Create Application Controller
 const CreateApplication = async (req, res) => {
-  const { name, email, phone, jobTitle } = req.body;
+  const { name,lastName, email, phone, jobTitle } = req.body;
   const resume = req.files ? req.files['resume'] : null; // For resume file (PDF, DOC, DOCX)
   
   // Log incoming data for debugging
@@ -52,6 +52,7 @@ const CreateApplication = async (req, res) => {
 
   // Check for missing required fields
   if (!name) missingFields.push({ name: "name", message: "Name field is required" });
+  if (!lastName) missingFields.push({ name: "lastName", message: "LastName field is required" });
   if (!email) {
     missingFields.push({ name: "email", message: "Email field is required" });
   } else if (!email.includes("@")) {
@@ -72,11 +73,11 @@ const CreateApplication = async (req, res) => {
       missingFields,
     });
   }
-
+const fullname=`${name} ${fullname}`;
   try {
     // Save the application to the database
     const ApplicationCreated = await Application.create({
-      name,
+      name: fullname,
       email,
       phone,
       jobTitle,
