@@ -4,6 +4,7 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const Category = require("../Models/categoryModel");
+const { default: mongoose } = require("mongoose");
 const uploadDir = path.join(__dirname, "../uploads");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -112,11 +113,9 @@ const createblog = async (req, res) => {
       author,
       slug,
       thumbnail,
- 
       metaDescription,
       published: isPublished,
       featured: isFeatured,
-
       category: { _id: categoryExists._id, name: categoryExists.name },
       faqSchema,
     });
@@ -275,16 +274,15 @@ const listblog = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1; 
     const limit = parseInt(req.query.limit) || 10; 
-    const { categoryId } = req.params; 
-    const { search } = req.query; 
+  const { categoryId, search } = req.query; 
+
 
     // base filter
     let filter = { published: true };
+if (categoryId && categoryId !== "all" && categoryId.trim() !== "") {
+  filter["category._id"] = new mongoose.Types.ObjectId(categoryId);
+}
 
-    // ✅ Category filter (check embedded category._id)
-    if (categoryId && categoryId !== "all" && categoryId.trim() !== "") {
-      filter["category._id"] = categoryId;
-    }
 
     // ✅ Search filter (applied only if non-empty)
     if (search && search.trim() !== "") {
@@ -330,11 +328,9 @@ const getFeaturedblogs = async (req, res) => {
       featured: true,
     }).select("-comments -detail -published -viewedBy -featured");
 
-    // Step 2: Randomly shuffle and pick 4
     const shuffled = allFeaturedBlogs.sort(() => 0.5 - Math.random());
     const blogslist = shuffled.slice(0, 4);
-
-    res.status(200).json({
+res.status(200).json({
       blogs: blogslist,
     });
   } catch (error) {
@@ -370,10 +366,7 @@ const getFeaturedblogsadmin = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(limit)
       .skip((page - 1) * limit);
-
-    // Count total blogs (with filter applied)
     const totalBlogs = await Blogs.countDocuments(filter);
-
     res.status(200).json({
       blogs: allFeaturedBlogs,
       currentPage: page,
