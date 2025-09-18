@@ -54,12 +54,14 @@ const adminRoutes = require("./Routes/adminRoutes");
 const viewsRouter = require("./Routes/viewsRoutes");
 const applicationRoutes = require("./Routes/applicationRoutes");
 const newsletterRoutes = require("./Routes/newsletterRoutes");
+const serviceRoutes = require("./Routes/serviceRoutes");
 
 app.use("/", userRouter);
 app.use("/admin", adminRoutes);
 app.use("/blog", blogRouter);
 app.use("/comment", commentRouter);
 app.use("/category", categoryRouter);
+app.use("/service",serviceRoutes );
 app.use("/usertype", UsertypeRouter);
 app.use("/testimonial", testimonialRouter);
 app.use("/views", viewsRouter);
