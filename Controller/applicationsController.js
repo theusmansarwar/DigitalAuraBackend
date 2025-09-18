@@ -44,9 +44,7 @@ const CreateApplication = async (req, res) => {
   const { name,lastName, email, phone, jobTitle } = req.body;
   const resume = req.files ? req.files['resume'] : null; // For resume file (PDF, DOC, DOCX)
   
-  // Log incoming data for debugging
-  console.log(req.body);
-  console.log(req.files);
+  
 
   const missingFields = [];
 

@@ -55,7 +55,7 @@ const viewsRouter = require("./Routes/viewsRoutes");
 const applicationRoutes = require("./Routes/applicationRoutes");
 const newsletterRoutes = require("./Routes/newsletterRoutes");
 const serviceRoutes = require("./Routes/serviceRoutes");
-
+const faqsRoutes = require("./Routes/faqsRoutes");
 app.use("/", userRouter);
 app.use("/admin", adminRoutes);
 app.use("/blog", blogRouter);
@@ -67,6 +67,7 @@ app.use("/testimonial", testimonialRouter);
 app.use("/views", viewsRouter);
 app.use("/applications", applicationRoutes);
 app.use("/newsletter", newsletterRoutes);
+app.use("/faqs", faqsRoutes);
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 const multer = require("multer");
@@ -119,9 +120,9 @@ app.post("/upload-image", upload.single("image"), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: "No file uploaded" });
   }
-  const fileUrl = `https://digitalaura.se/backend/api/uploads/${req.file.filename}`;
+  const fileUrl = `/uploads/${req.file.filename}`;
   res.json({
-    files: [fileUrl],
+    file:fileUrl,
     isSuccess: true,
     messages: ["Image uploaded successfully"],
   });
@@ -129,6 +130,6 @@ app.post("/upload-image", upload.single("image"), (req, res) => {
 
 connectDB().then(() => {
   app.listen(port, () => {
-    console.log(`🚀 Server is running on Port: ${port}`);
+    console.log(`Server is running on Port: ${port}`);
   });
 });

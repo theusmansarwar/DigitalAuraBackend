@@ -41,6 +41,7 @@ const createservice = async (req, res) => {
       slug,
       detail,
       published,
+      icon
     } = req.body;
 
     const missingFields = [];
@@ -54,6 +55,7 @@ const createservice = async (req, res) => {
       if (!metaDescription) missingFields.push({ name: "metaDescription", message: "Meta description is required" });
       if (!slug) missingFields.push({ name: "slug", message: "Slug is required" });
       if (!detail) missingFields.push({ name: "detail", message: "Detail is required" });
+      if (!icon) missingFields.push({ name: "icon", message: "Icon is required"});
     }
 
     // ✅ If any required fields are missing, stop
@@ -94,6 +96,7 @@ const createservice = async (req, res) => {
       metaDescription,
       slug,
       detail,
+      icon,
       published: isPublished,
     });
 
@@ -129,6 +132,7 @@ const updateService = async (req, res) => {
       how_we_delivered,
       portfolio,
       video,
+      icon
     } = req.body;
 
     const missingFields = [];
@@ -139,33 +143,107 @@ const updateService = async (req, res) => {
       if (!title) missingFields.push({ name: "title", message: "Title is required" });
       if (!description) missingFields.push({ name: "description", message: "Description is required" });
       if (!metaDescription) missingFields.push({ name: "metaDescription", message: "Meta description is required" });
-      if (!slug) missingFields.push({ name: "slug", message: "Slug is required" });
+      if (!slug) missingFields.push({ name: "slug", message: "Slug is required"});
+     let iconPath;
+if (req.file) {
+  iconPath = `/uploads/${req.file.filename}`;
+} else if (req.body.icon) {
+  iconPath = req.body.icon; 
+} else {
+  missingFields.push({
+    name: "icon",
+    message: "Icon is required",
+  });
+}
     }
 
     // 🔍 Validation for FAQs section
-    if (faqs && (faqs.published === "true" || faqs.published === true)) {
-      if (!faqs.title) missingFields.push({ name: "faqs.title", message: "FAQs title is required" });
-      if (!faqs.description) missingFields.push({ name: "faqs.description", message: "FAQs description is required" });
+   // 🔍 Validation for FAQs section
+let faqsData = {};
+if (faqs) {
+  const parsedFaqs =
+    typeof faqs === "string" ? JSON.parse(faqs) : faqs;
+
+  faqsData = {
+    title: parsedFaqs.title,
+    description: parsedFaqs.description,
+    published:
+      parsedFaqs.published === "true" || parsedFaqs.published === true,
+  };
+
+  if (faqsData.published) {
+    if (!faqsData.title) {
+      missingFields.push({
+        name: "faqs.title",
+        message: "FAQs title is required",
+      });
     }
+    if (!faqsData.description) {
+      missingFields.push({
+        name: "faqs.description",
+        message: "FAQs description is required",
+      });
+    }
+  }
+}
+
 
     // 🔍 Validation for How We Delivered section
-    if (how_we_delivered && (how_we_delivered.published === "true" || how_we_delivered.published === true)) {
-      if (!how_we_delivered.description) missingFields.push({ name: "how_we_delivered.description", message: "Description is required" });
-      if (!how_we_delivered.image) missingFields.push({ name: "how_we_delivered.image", message: "Image is required" });
+    let howWeDeliveredData = {};
+    if (how_we_delivered) {
+      const parsed = typeof how_we_delivered === "string" ? JSON.parse(how_we_delivered) : how_we_delivered;
+      howWeDeliveredData = {
+        description: parsed.description,
+        lower_description: parsed.lower_description,
+        image: req.file ? `/uploads/${req.file.filename}` : parsed.image, // ✅ File upload
+        published: parsed.published === "true" || parsed.published === true,
+      };
+
+      if (howWeDeliveredData.published) {
+        if (!howWeDeliveredData.description) {
+          missingFields.push({ name: "how_we_delivered.description", message: "Description is required" });
+        }
+         if (!howWeDeliveredData.lower_description) {
+          missingFields.push({ name: "how_we_delivered.lower_description", message: "lower_description is required" });
+        }
+        if (!req.file && !parsed.image) {
+          missingFields.push({ name: "how_we_delivered.image", message: "Image file is required" });
+        }
+      }
     }
 
     // 🔍 Validation for Video section
-    if (video && (video.published === "true" || video.published === true)) {
-      if (!video.description) missingFields.push({ name: "video.description", message: "Video description is required" });
-      if (!video.url) missingFields.push({ name: "video.url", message: "Video URL is required" });
+   // 🔍 Validation for Video section
+let videoData = {};
+if (video) {
+  const parsedVideo =
+    typeof video === "string" ? JSON.parse(video) : video;
+
+  videoData = {
+    description: parsedVideo.description,
+    url: parsedVideo.url,
+    published:
+      parsedVideo.published === "true" || parsedVideo.published === true,
+  };
+
+  if (videoData.published) {
+    if (!videoData.description) {
+      missingFields.push({
+        name: "video.description",
+        message: "Video description is required",
+      });
     }
+    if (!videoData.url) {
+      missingFields.push({
+        name: "video.url",
+        message: "Video URL is required",
+      });
+    }
+  }
+}
 
     if (missingFields.length > 0) {
-      return res.status(400).json({
-        status: 400,
-        message: "Some fields are missing!",
-        missingFields,
-      });
+      return res.status(400).json({ status: 400, message: "Some fields are missing!", missingFields });
     }
 
     // ✅ Prepare update fields
@@ -176,45 +254,27 @@ const updateService = async (req, res) => {
       metaDescription,
       slug,
       detail,
+      icon,
       published: isPublished,
     };
 
-    if (faqs) {
-      updateFields.faqs = {
-        title: faqs.title,
-        description: faqs.description,
-        published: faqs.published === "true" || faqs.published === true,
-      };
-    }
-
-    if (how_we_delivered) {
-      updateFields.how_we_delivered = {
-        description: how_we_delivered.description,
-        image: how_we_delivered.image,
-        published: how_we_delivered.published === "true" || how_we_delivered.published === true,
-      };
-    }
-
+     if (faqs) updateFields.faqs = faqsData;
+    if (how_we_delivered) updateFields.how_we_delivered = howWeDeliveredData;
     if (portfolio) {
+      const parsedPortfolio = typeof portfolio === "string" ? JSON.parse(portfolio) : portfolio;
       updateFields.portfolio = {
-        items: portfolio.items || [],
-        published: portfolio.published === "true" || portfolio.published === true,
+        items: parsedPortfolio.items || [],
+        published: parsedPortfolio.published === "true" || parsedPortfolio.published === true,
       };
     }
+    if (video) updateFields.video = videoData;
 
-    if (video) {
-      updateFields.video = {
-        description: video.description,
-        url: video.url,
-        published: video.published === "true" || video.published === true,
-      };
-    }
-
-    // 🔄 Update in DB
-    const updatedService = await Services.findByIdAndUpdate(id, updateFields, {
-      new: true,
-      runValidators: true,
-    });
+    // ✅ Save to DB
+    const updatedService = await Services.findByIdAndUpdate(
+      id,
+      updateFields,
+      { new: true, runValidators: true }
+    );
 
     if (!updatedService) {
       return res.status(404).json({ message: "Service not found" });
@@ -227,15 +287,10 @@ const updateService = async (req, res) => {
     });
   } catch (error) {
     console.error("Error updating service:", error);
-    res.status(500).json({
-      status: 500,
-      message: "Internal server error",
-      error: error.message,
-    });
+    res.status(500).json({ status: 500, message: "Internal server error", error: error.message });
   }
 };
 
-module.exports = { updateService };
 
 
 const listserviceAdmin = async (req, res) => {
@@ -286,7 +341,7 @@ const listservice = async (req, res) => {
     }
 
     const servicesList = await Services.find(filter)
-      .select("title short_description createdAt") // ✅ Keep published too if you want to show status
+      .select("title short_description createdAt slug icon") // ✅ Keep published too if you want to show status
       .sort({ createdAt: -1 })
       .limit(limit)
       .skip((page - 1) * limit);
@@ -318,7 +373,8 @@ const getServiceById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const service = await Services.findById(id);
+    const service = await Services.findById(id)
+    .populate("faqs.items", "question answer");
     if (!service) {
       return res.status(404).json({ message: "Service not found" });
     }
@@ -413,7 +469,7 @@ const getservicesSlugs = async (req, res) => {
 
 module.exports = {
   createservice,
-    updateService: [upload.single("image"), updateService],
+  updateService: [upload.single("image"), updateService],
 
   listserviceAdmin,getServiceById,deleteAllservices,getServiceBySlug,getservicesSlugs,listservice
 };

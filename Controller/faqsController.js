@@ -6,7 +6,7 @@ const Services = require("../Models/serviceModel");
 const addFAQ = async (req, res) => {
   try {
     let { question, answer, serviceid } = req.body;
-      console.log("Question is :::",question )
+    
     if (!question ) {
       return res.status(400).json({ message: "FAQ question are required" });
     }
@@ -31,7 +31,7 @@ const addFAQ = async (req, res) => {
     // Link to service
     const updatedService = await Services.findByIdAndUpdate(
       serviceid,
-      { $push: { faqs: faqSaved._id } },
+      { $push: { "faqs.items": faqSaved._id } },
       { new: true }
     );
 
