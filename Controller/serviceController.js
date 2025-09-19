@@ -1,4 +1,3 @@
-
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -30,7 +29,6 @@ const fileFilter = (req, file, cb) => {
 // Multer Upload Middleware
 const upload = multer({ storage: storage, fileFilter: fileFilter });
 
-
 const createservice = async (req, res) => {
   try {
     const {
@@ -41,7 +39,7 @@ const createservice = async (req, res) => {
       slug,
       detail,
       published,
-      icon
+      icon,
     } = req.body;
 
     const missingFields = [];
@@ -49,13 +47,29 @@ const createservice = async (req, res) => {
 
     // ✅ Validate required fields only if published
     if (isPublished) {
-      if (!title) missingFields.push({ name: "title", message: "Title is required" });
-      if (!description) missingFields.push({ name: "description", message: "Description is required" });
-      if (!short_description) missingFields.push({ name: "short_description", message: "Short description is required" });
-      if (!metaDescription) missingFields.push({ name: "metaDescription", message: "Meta description is required" });
-      if (!slug) missingFields.push({ name: "slug", message: "Slug is required" });
-      if (!detail) missingFields.push({ name: "detail", message: "Detail is required" });
-      if (!icon) missingFields.push({ name: "icon", message: "Icon is required"});
+      if (!title)
+        missingFields.push({ name: "title", message: "Title is required" });
+      if (!description)
+        missingFields.push({
+          name: "description",
+          message: "Description is required",
+        });
+      if (!short_description)
+        missingFields.push({
+          name: "short_description",
+          message: "Short description is required",
+        });
+      if (!metaDescription)
+        missingFields.push({
+          name: "metaDescription",
+          message: "Meta description is required",
+        });
+      if (!slug)
+        missingFields.push({ name: "slug", message: "Slug is required" });
+      if (!detail)
+        missingFields.push({ name: "detail", message: "Detail is required" });
+      if (!icon)
+        missingFields.push({ name: "icon", message: "Icon is required" });
     }
 
     // ✅ If any required fields are missing, stop
@@ -74,10 +88,16 @@ const createservice = async (req, res) => {
     ]);
 
     if (existingTitle) {
-      missingFields.push({ name: "title", message: "Service title already exists" });
+      missingFields.push({
+        name: "title",
+        message: "Service title already exists",
+      });
     }
     if (existingSlug) {
-      missingFields.push({ name: "slug", message: "Service slug already exists" });
+      missingFields.push({
+        name: "slug",
+        message: "Service slug already exists",
+      });
     }
 
     if (missingFields.length > 0) {
@@ -132,7 +152,7 @@ const updateService = async (req, res) => {
       how_we_delivered,
       portfolio,
       video,
-      icon
+      icon,
     } = req.body;
 
     const missingFields = [];
@@ -140,58 +160,69 @@ const updateService = async (req, res) => {
 
     // 🔍 Validation for top-level publish
     if (isPublished) {
-      if (!title) missingFields.push({ name: "title", message: "Title is required" });
-      if (!description) missingFields.push({ name: "description", message: "Description is required" });
-      if (!metaDescription) missingFields.push({ name: "metaDescription", message: "Meta description is required" });
-      if (!slug) missingFields.push({ name: "slug", message: "Slug is required"});
-     let iconPath;
-if (req.file) {
-  iconPath = `/uploads/${req.file.filename}`;
-} else if (req.body.icon) {
-  iconPath = req.body.icon; 
-} else {
-  missingFields.push({
-    name: "icon",
-    message: "Icon is required",
-  });
-}
+      if (!title)
+        missingFields.push({ name: "title", message: "Title is required" });
+      if (!description)
+        missingFields.push({
+          name: "description",
+          message: "Description is required",
+        });
+      if (!metaDescription)
+        missingFields.push({
+          name: "metaDescription",
+          message: "Meta description is required",
+        });
+      if (!slug)
+        missingFields.push({ name: "slug", message: "Slug is required" });
+      let iconPath;
+      if (req.file) {
+        iconPath = `/uploads/${req.file.filename}`;
+      } else if (req.body.icon) {
+        iconPath = req.body.icon;
+      } else {
+        missingFields.push({
+          name: "icon",
+          message: "Icon is required",
+        });
+      }
     }
 
     // 🔍 Validation for FAQs section
-   // 🔍 Validation for FAQs section
-let faqsData = {};
-if (faqs) {
-  const parsedFaqs =
-    typeof faqs === "string" ? JSON.parse(faqs) : faqs;
+    // 🔍 Validation for FAQs section
+    let faqsData = {};
+    if (faqs) {
+      const parsedFaqs = typeof faqs === "string" ? JSON.parse(faqs) : faqs;
 
-  faqsData = {
-    title: parsedFaqs.title,
-    description: parsedFaqs.description,
-    published:
-      parsedFaqs.published === "true" || parsedFaqs.published === true,
-  };
+      faqsData = {
+        title: parsedFaqs.title,
+        description: parsedFaqs.description,
+        published:
+          parsedFaqs.published === "true" || parsedFaqs.published === true,
+      };
 
-  if (faqsData.published) {
-    if (!faqsData.title) {
-      missingFields.push({
-        name: "faqs.title",
-        message: "FAQs title is required",
-      });
+      if (faqsData.published) {
+        if (!faqsData.title) {
+          missingFields.push({
+            name: "faqs.title",
+            message: "FAQs title is required",
+          });
+        }
+        if (!faqsData.description) {
+          missingFields.push({
+            name: "faqs.description",
+            message: "FAQs description is required",
+          });
+        }
+      }
     }
-    if (!faqsData.description) {
-      missingFields.push({
-        name: "faqs.description",
-        message: "FAQs description is required",
-      });
-    }
-  }
-}
-
 
     // 🔍 Validation for How We Delivered section
     let howWeDeliveredData = {};
     if (how_we_delivered) {
-      const parsed = typeof how_we_delivered === "string" ? JSON.parse(how_we_delivered) : how_we_delivered;
+      const parsed =
+        typeof how_we_delivered === "string"
+          ? JSON.parse(how_we_delivered)
+          : how_we_delivered;
       howWeDeliveredData = {
         description: parsed.description,
         lower_description: parsed.lower_description,
@@ -201,49 +232,63 @@ if (faqs) {
 
       if (howWeDeliveredData.published) {
         if (!howWeDeliveredData.description) {
-          missingFields.push({ name: "how_we_delivered.description", message: "Description is required" });
+          missingFields.push({
+            name: "how_we_delivered.description",
+            message: "Description is required",
+          });
         }
-         if (!howWeDeliveredData.lower_description) {
-          missingFields.push({ name: "how_we_delivered.lower_description", message: "lower_description is required" });
+        if (!howWeDeliveredData.lower_description) {
+          missingFields.push({
+            name: "how_we_delivered.lower_description",
+            message: "lower_description is required",
+          });
         }
         if (!req.file && !parsed.image) {
-          missingFields.push({ name: "how_we_delivered.image", message: "Image file is required" });
+          missingFields.push({
+            name: "how_we_delivered.image",
+            message: "Image file is required",
+          });
         }
       }
     }
 
     // 🔍 Validation for Video section
-   // 🔍 Validation for Video section
-let videoData = {};
-if (video) {
-  const parsedVideo =
-    typeof video === "string" ? JSON.parse(video) : video;
+    // 🔍 Validation for Video section
+    let videoData = {};
+    if (video) {
+      const parsedVideo = typeof video === "string" ? JSON.parse(video) : video;
 
-  videoData = {
-    description: parsedVideo.description,
-    url: parsedVideo.url,
-    published:
-      parsedVideo.published === "true" || parsedVideo.published === true,
-  };
+      videoData = {
+        description: parsedVideo.description,
+        url: parsedVideo.url,
+        published:
+          parsedVideo.published === "true" || parsedVideo.published === true,
+      };
 
-  if (videoData.published) {
-    if (!videoData.description) {
-      missingFields.push({
-        name: "video.description",
-        message: "Video description is required",
-      });
+      if (videoData.published) {
+        if (!videoData.description) {
+          missingFields.push({
+            name: "video.description",
+            message: "Video description is required",
+          });
+        }
+        if (!videoData.url) {
+          missingFields.push({
+            name: "video.url",
+            message: "Video URL is required",
+          });
+        }
+      }
     }
-    if (!videoData.url) {
-      missingFields.push({
-        name: "video.url",
-        message: "Video URL is required",
-      });
-    }
-  }
-}
 
     if (missingFields.length > 0) {
-      return res.status(400).json({ status: 400, message: "Some fields are missing!", missingFields });
+      return res
+        .status(400)
+        .json({
+          status: 400,
+          message: "Some fields are missing!",
+          missingFields,
+        });
     }
 
     // ✅ Prepare update fields
@@ -258,23 +303,25 @@ if (video) {
       published: isPublished,
     };
 
-     if (faqs) updateFields.faqs = faqsData;
+    if (faqs) updateFields.faqs = faqsData;
     if (how_we_delivered) updateFields.how_we_delivered = howWeDeliveredData;
     if (portfolio) {
-      const parsedPortfolio = typeof portfolio === "string" ? JSON.parse(portfolio) : portfolio;
+      const parsedPortfolio =
+        typeof portfolio === "string" ? JSON.parse(portfolio) : portfolio;
       updateFields.portfolio = {
         items: parsedPortfolio.items || [],
-        published: parsedPortfolio.published === "true" || parsedPortfolio.published === true,
+        published:
+          parsedPortfolio.published === "true" ||
+          parsedPortfolio.published === true,
       };
     }
     if (video) updateFields.video = videoData;
 
     // ✅ Save to DB
-    const updatedService = await Services.findByIdAndUpdate(
-      id,
-      updateFields,
-      { new: true, runValidators: true }
-    );
+    const updatedService = await Services.findByIdAndUpdate(id, updateFields, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!updatedService) {
       return res.status(404).json({ message: "Service not found" });
@@ -287,11 +334,15 @@ if (video) {
     });
   } catch (error) {
     console.error("Error updating service:", error);
-    res.status(500).json({ status: 500, message: "Internal server error", error: error.message });
+    res
+      .status(500)
+      .json({
+        status: 500,
+        message: "Internal server error",
+        error: error.message,
+      });
   }
 };
-
-
 
 const listserviceAdmin = async (req, res) => {
   try {
@@ -365,16 +416,14 @@ const listservice = async (req, res) => {
   }
 };
 
-
-
-
-
 const getServiceById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const service = await Services.findById(id)
-    .populate("faqs.items", "question answer");
+    const service = await Services.findById(id).populate(
+      "faqs.items",
+      "question answer"
+    );
     if (!service) {
       return res.status(404).json({ message: "Service not found" });
     }
@@ -393,8 +442,10 @@ const getServiceBySlug = async (req, res) => {
   try {
     const { slug } = req.params;
 
-    const service = await Services.findOne({ slug, published: true })
-      // .populate("faqs.items", "question answer")        // populate faq items
+    const service = await Services.findOne({ slug, published: true }).populate(
+      "faqs.items",
+      "question answer"
+    )
       // .populate("portfolio.items", "title description image url") // populate portfolio items
       .exec();
 
@@ -413,8 +464,6 @@ const getServiceBySlug = async (req, res) => {
   }
 };
 
-
-
 const deleteAllservices = async (req, res) => {
   try {
     const { ids } = req.body;
@@ -424,24 +473,17 @@ const deleteAllservices = async (req, res) => {
         .status(400)
         .json({ message: "Invalid request. Provide ServiceCategory IDs." });
     }
- 
-   
-
-    
 
     await Services.deleteMany({ _id: { $in: ids } });
 
     res.status(200).json({
       status: 200,
       message: "Categories Delete successfully.",
-   
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
-
-
 
 const getservicesSlugs = async (req, res) => {
   try {
@@ -465,11 +507,13 @@ const getservicesSlugs = async (req, res) => {
   }
 };
 
-
-
 module.exports = {
   createservice,
   updateService: [upload.single("image"), updateService],
-
-  listserviceAdmin,getServiceById,deleteAllservices,getServiceBySlug,getservicesSlugs,listservice
+  listserviceAdmin,
+  getServiceById,
+  deleteAllservices,
+  getServiceBySlug,
+  getservicesSlugs,
+  listservice,
 };
