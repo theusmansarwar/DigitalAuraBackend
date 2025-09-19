@@ -56,6 +56,7 @@ const applicationRoutes = require("./Routes/applicationRoutes");
 const newsletterRoutes = require("./Routes/newsletterRoutes");
 const serviceRoutes = require("./Routes/serviceRoutes");
 const faqsRoutes = require("./Routes/faqsRoutes");
+const PortfolioRoutes = require("./Routes/portfolioRoutes");
 app.use("/", userRouter);
 app.use("/admin", adminRoutes);
 app.use("/blog", blogRouter);
@@ -68,6 +69,7 @@ app.use("/views", viewsRouter);
 app.use("/applications", applicationRoutes);
 app.use("/newsletter", newsletterRoutes);
 app.use("/faqs", faqsRoutes);
+app.use("/portfolio", PortfolioRoutes);
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 const multer = require("multer");

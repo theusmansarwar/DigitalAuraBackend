@@ -150,7 +150,7 @@ const updateService = async (req, res) => {
       published,
       faqs,
       how_we_delivered,
-      portfolio,
+      portfolio_published,
       video,
       icon,
     } = req.body;
@@ -305,16 +305,11 @@ const updateService = async (req, res) => {
 
     if (faqs) updateFields.faqs = faqsData;
     if (how_we_delivered) updateFields.how_we_delivered = howWeDeliveredData;
-    if (portfolio) {
-      const parsedPortfolio =
-        typeof portfolio === "string" ? JSON.parse(portfolio) : portfolio;
-      updateFields.portfolio = {
-        items: parsedPortfolio.items || [],
-        published:
-          parsedPortfolio.published === "true" ||
-          parsedPortfolio.published === true,
-      };
-    }
+  if (portfolio_published !== undefined) {
+  updateFields["portfolio.published"] =
+    portfolio_published === "true" || portfolio_published === true;
+}
+
     if (video) updateFields.video = videoData;
 
     // ✅ Save to DB
@@ -423,7 +418,8 @@ const getServiceById = async (req, res) => {
     const service = await Services.findById(id).populate(
       "faqs.items",
       "question answer"
-    );
+    )
+    .populate("portfolio.items","title description images videos thumbnail published") ;
     if (!service) {
       return res.status(404).json({ message: "Service not found" });
     }
@@ -446,7 +442,7 @@ const getServiceBySlug = async (req, res) => {
       "faqs.items",
       "question answer"
     )
-      // .populate("portfolio.items", "title description image url") // populate portfolio items
+      .populate("portfolio.items","title description images videos thumbnail published") 
       .exec();
 
     if (!service) {
