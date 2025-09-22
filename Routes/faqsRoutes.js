@@ -7,9 +7,9 @@ const {
 
 const authMiddleware = require("../Middleware/authMiddleware");
 router.post("/add", addFAQ);
-router.put("/update/:id", authMiddleware, updateFAQ);
-router.delete("delete/:id", authMiddleware, deleteFAQ);
-router.delete("/delete", authMiddleware, deleteAllFAQs);
+router.put("/update/:id",  updateFAQ);
+router.delete("delete/:id",  deleteFAQ);
+router.delete("/delete",  deleteAllFAQs);
 
 
 

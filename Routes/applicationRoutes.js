@@ -7,8 +7,8 @@ const authMiddleware = require("../Middleware/authMiddleware");
 
 
 router.post('/CreateApplication', CreateApplication);
-router.get('/ApplicationList',authMiddleware,ApplicationList );
-router.delete('/ApplicationDelete',authMiddleware,DeleteApplication );
-router.get('/Application/:id',authMiddleware,GetApplicationById );
+router.get('/ApplicationList',ApplicationList );
+router.delete('/ApplicationDelete',DeleteApplication );
+router.get('/Application/:id',GetApplicationById );
 
 module.exports = router;

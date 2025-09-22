@@ -10,10 +10,10 @@ const {
 
 const authMiddleware = require("../Middleware/authMiddleware");
 
-router.post("/add", authMiddleware, addPortfolio);
-router.put("/update/:id", authMiddleware, updatePortfolio);
-router.delete("/delete/:id", authMiddleware, deletePortfolio);
-router.delete("/delete-many", authMiddleware, deleteAllPortfolios);
+router.post("/add",  addPortfolio);
+router.put("/update/:id",  updatePortfolio);
+router.delete("/delete/:id",  deletePortfolio);
+router.delete("/delete-many",  deleteAllPortfolios);
 
 
 module.exports = router;
