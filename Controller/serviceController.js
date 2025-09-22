@@ -303,7 +303,14 @@ const updateService = async (req, res) => {
       published: isPublished,
     };
 
-    if (faqs) updateFields.faqs = faqsData;
+    if (faqs !== undefined) {
+  const parsedFaqs = typeof faqs === "string" ? JSON.parse(faqs) : faqs;
+
+  Object.keys(parsedFaqs).forEach((key) => {
+    updateFields[`faqs.${key}`] = parsedFaqs[key];
+  });
+}
+
     if (how_we_delivered) updateFields.how_we_delivered = howWeDeliveredData;
   if (portfolio_published !== undefined) {
   updateFields["portfolio.published"] =
